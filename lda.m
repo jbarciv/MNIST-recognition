@@ -1,20 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                           Master in Robotics
-%                    Applied Artificial Intelligence
-%
-% Assinment 2.3: Linear Discriminant Analysis
-% Student: Josep Barbera Civera
-% ID: 17048
-% Date: 09/03/2024
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% 0. Load data_D2_C2 and normalize the data (p.value and t.value)
-% 1. Compute array Wnlda that maximize the Fisher discriminant
-% 2. Compute the 1D coordinates of the test data projected onto Wnlda
-% 3. Compute and plot the 2D dimensional coordinates of the above
-% projected data once denormalized (see figure for result)
-% 4. Compute the reconstruction MSE of the not normalized data
-
+%% Example of LDA
 load data_D2_C2.mat
 
 %% Accesing Data
