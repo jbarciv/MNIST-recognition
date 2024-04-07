@@ -68,7 +68,7 @@ function [train, reconst] = processing_data(X_train, y_train, n_dim)
         image_normalized(:,i) = value;
     end
     
-    %%% PCA %%%
+    %%% PCA %%%%%%%%%%%%%%%%%%
     % image_normalized = X_train;
     data = image_normalized;
     original_data = X_train;
@@ -115,7 +115,7 @@ function [train, reconst] = processing_data(X_train, y_train, n_dim)
     % 
     % reconst=p_reconstructed;
 
-    %%% LDA %%%
+    %%% LDA %%%%%%%%%%%%%%%%%%
     
     % Step 1: Compute array Wnlda
     % Assuming X_train is your training data and y_train is the corresponding labels
@@ -148,7 +148,7 @@ function [train, reconst] = processing_data(X_train, y_train, n_dim)
         S_B = S_B + n * (mean_diff' * mean_diff);
     end
 
-    % Compute eigenvectors and eigenvalues
+    % Computing W (eigenvecs) matrix: maximizing the Fisher Discriminants
     [eigvecs, eigvals] = eig(pinv(S_W) * S_B);
 
     % Choose the top k eigenvectors
