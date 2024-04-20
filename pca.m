@@ -51,7 +51,7 @@ disp(['Acierto: ', num2str((2000-no_errors_nn)/2000)]);
 %% Functions
 function [train, reconst] = processing_data(X_train, y_train, n_dim)
     %%% Normalization
-    [D,N] = size(X_train); 
+    [D,N] = size(X_train)
     clear meanp stdp
     meanp = mean(X_train')';
     stdp = std(X_train')';
