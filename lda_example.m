@@ -1,56 +1,69 @@
 %% Example of LDA
-load data_D2_C2.mat
 
-%% Accesing Data
-pvalues = p.value;
-plabels = p.class;
+%%% Loading data %%%
+load Trainnumbers.mat;
 
-%% Normalizing data
-disp("-------- Normalizing Data ---------------------------");
-disp("Normalizing data...");
-[Mp, Np] = size(pvalues);
-mn_p = mean(pvalues')';
-std_p = std(pvalues')';
-for i = 1:Np
-    pn(:,i) = (pvalues(:,i) - mn_p)./std_p;
+% Separate training set from test set
+
+X_train = Trainnumbers.image(:,1:8000);
+y_train = Trainnumbers.label(:,1:8000);
+X_test = Trainnumbers.image(:,8001:10000);
+y_test = Trainnumbers.label(:,8001:10000);
+
+%%% Normalizacion %%%
+[D,N]=size(X_train); 
+clear meanp stdp
+meanp=mean(X_train')';
+stdp=std(X_train')';
+
+for i=1:D
+    if stdp(i) == 0 
+            stdp(i)=0.0001;
+    end
 end
+%%% Datos Train normalizados:
+for i=1:N
+    value=(X_train(:,i)-meanp)./stdp;
+    X_train_normalized(:,i)=value;
+end
+[D,N]=size(X_test); 
 
-%% Plotting Normalized Data vs Raw Data
-% one_plot('Raw Data vs Centred Data', 'p.values', ...
-%             'x - coordinates', 'y - coordinates', 'Raw Data', ...
-%             'Centered Data', pvalues, pn, ...
-%             plabels, 'centred_data_vs_raw_data.png');
+%%% Datos Test normalizados:
+for i=1:N
+    value=(X_test(:,i)-meanp)./stdp;
+    X_test_normalized(:,i)=value;
+end
 
 %% Computing Scatter Matrices
-pmatrices = Scatter_matrices(pn, plabels);
+pmatrices = Scatter_matrices(X_train_normalized, y_train);
 S1 = pmatrices{1};
 S2 = pmatrices{2};
-Sw = pmatrices{3}
-Sb = pmatrices{4}
+Sw = pmatrices{3};
+Sb = pmatrices{4};
 St = pmatrices{5};
 
-%% Computing W matrix: maximizing the Fisher Discriminant
-[W, D] = eig(inv(Sw)*Sb)
-
-%% Sort the variances in decreasing order
-disp("-------- Sorting variances in decreasing order ---------");
-% Extract diagonal of matrix as vector
-D = diag(D);
-% Sort W and convert D to a column vector with the eigenvalues
-[~, p_rindices] = sort(-1*D);
-D = D(p_rindices);
-W = W(:, p_rindices);
-
-
-%% Computing projection
-w = W(:,1)';
-y = w * pn;
-
-%% Desprojection
-x_n = w' * y;
-for i=1:Np
-    x(:,i) = x_n(:,i) .* std_p + mn_p;
-end
+% %% Computing W matrix: maximizing the Fisher Discriminant
+% [W, D] = eig(inv(Sw)*Sb)
+% 
+% %% Sort the variances in decreasing order
+% disp("-------- Sorting variances in decreasing order ---------");
+% % Extract diagonal of matrix as vector
+% D = diag(D);
+% % Sort W and convert D to a column vector with the eigenvalues
+% [~, p_rindices] = sort(-1*D);
+% D = D(p_rindices);
+% W = W(:, p_rindices);
+% 
+% 
+% %% Computing projection
+% w = W(:,1)';
+% y = w * pn;
+% 
+% %% Desprojection
+% x_n = w' * y;
+% for i=1:Np
+%     x(:,i) = x_n(:,i) .* std_p + mn_p;
+% end
 
 %% Plotting Data vs LDA projection
 % one_plot('Raw Data vs LDA Projection', ...
