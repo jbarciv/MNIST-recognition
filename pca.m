@@ -26,64 +26,65 @@ y_train = Trainnumbers.label(:,1:8000);
 X_test = Trainnumbers.image(:,8001:10000);
 y_test = Trainnumbers.label(:,8001:10000);
 
-%%% Normalizacion %%%
-[D,N]=size(X_train); 
+%%% Normalization %%%
+[D,N] = size(X_train); 
 clear meanp stdp
-meanp=mean(X_train')';
-stdp=std(X_train')';
+meanp = mean(X_train')';
+stdp = std(X_train')';
 
-for i=1:D
+for i = 1:D
     if stdp(i) == 0 
-            stdp(i)=0.0001;
+        stdp(i) = 0.0001;
     end
 end
-%%% Datos Train normalizados:
-for i=1:N
-    value=(X_train(:,i)-meanp)./stdp;
-    X_train_normalized(:,i)=value;
+
+%%% Training Data Normalized:
+for i = 1:N
+    value = (X_train(:, i) - meanp) ./stdp;
+    X_train_normalized(:, i) = value;
 end
+
 [D,N]=size(X_test); 
 
-%%% Datos Test normalizados:
-for i=1:N
-    value=(X_test(:,i)-meanp)./stdp;
-    X_test_normalized(:,i)=value;
+%%% Test Data Normalized:
+for i = 1:N
+    value = (X_test(:, i) - meanp) ./ stdp;
+    X_test_normalized(:,i) = value;
 end
 
-%%%% Clasification %%%%
+%%%% Classification %%%%
 
-print_digit(Trainnumbers.image,10);
-n_dim=100;
-[train,reconst1,W]=processing_data(X_train_normalized,n_dim,meanp,stdp);
-[test,reconst2]=processing_data_post(X_test_normalized,meanp,stdp,W);
+print_digit(Trainnumbers.image, 10);
+n_dim = 100;
+[train, reconst1,W] = processing_data(X_train_normalized, n_dim, meanp, stdp);
+[test, reconst2] = processing_data_post(X_test_normalized, meanp, stdp, W);
 
-print_digit(reconst1,50)
-print_digit(reconst2,100)
+print_digit(reconst1, 50)
+print_digit(reconst2, 100)
 
-knnMdl = fitcknn(train',y_train','NumNeighbors',5);
-knnclass = predict(knnMdl,test');
-no_errors_nn=length(find(knnclass'~=y_test));
+knnMdl = fitcknn(train', y_train', 'NumNeighbors', 5);
+knnclass = predict(knnMdl, test');
+no_errors_nn = length(find(knnclass' ~= y_test));
 disp(['Misclassification error: ', num2str(no_errors_nn)]);
-disp(['Acierto: ', num2str((2000-no_errors_nn)/2000)]);
+disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
 
-cm = confusionchart(y_test,knnclass', ...
+cm = confusionchart(y_test, knnclass', ...
     'Title','Matriz de confusión', ...
     'RowSummary','row-normalized', ...
     'ColumnSummary','column-normalized');
 
-%% Neural Network classification
 
+%% Neural Network classification
 % to do
 
-
 %% Functions
-function [train,reconst,W]=processing_data(X_train,n_dim,meanp,stdp)
+function [train, reconst, W] = processing_data(X_train, n_dim, meanp, stdp)
 
     data = X_train;   
 
     % Compute PCA transformation matrix using normalized training data
-    [Wc,Diag]=eig(cov(data'));
-    [D,N]=size(data); 
+    [Wc,Diag] = eig(cov(data'));
+    [D,N] = size(data); 
     total = sum(sum(Diag));
     eval = max(Diag);
 
@@ -109,40 +110,40 @@ function [train,reconst,W]=processing_data(X_train,n_dim,meanp,stdp)
     % end
     % reconst=p_reconstructed;
 %%
-    for i=1:n_dim
-        W(i,:)=Wc(:,D+1-i)'; 
+    for i = 1:n_dim
+        W(i,:) = Wc(:, D+1-i)'; 
     end
-    pnproj=W*data;
-    ExpectedError=0;
-    Diag(D,D);
-    for j=0:n_dim
-        ExpectedError=ExpectedError+Diag(D-j,D-j);
+    pnproj = W*data;
+    ExpectedError = 0;
+    Diag(D, D);
+    for j = 0:n_dim
+        ExpectedError = ExpectedError + Diag(D-j, D-j);
     end    
-    ExpectedError=ExpectedError/total
+    ExpectedError = ExpectedError/total
 
     pnproj = W*data;
-    reconstructed=W'*pnproj;
-    for i=1:N       
-        p_reconstructed(:,i)=reconstructed(:,i).*stdp+meanp;
+    reconstructed = W'*pnproj;
+    for i = 1:N       
+        p_reconstructed(:,i) = reconstructed(:,i) .* stdp + meanp;
     end
-    reconst=p_reconstructed;
-    train=pnproj;
+    reconst = p_reconstructed;
+    train = pnproj;
 end
 
 
-function [train,reconst]=processing_data_post(X_train,meanp,stdp,W)
+function [train, reconst] = processing_data_post(X_train, meanp, stdp, W)
     data = X_train;  
-    [D,N]=size(data);   
+    [D, N] = size(data);   
     pnproj = W*data;
-    reconstructed=W'*pnproj;
-    for i=1:N       
-        p_reconstructed(:,i)=reconstructed(:,i).*stdp+meanp;
+    reconstructed = W'*pnproj;
+    for i = 1:N       
+        p_reconstructed(:, i) = reconstructed(:, i) .* stdp + meanp;
     end
-    reconst=p_reconstructed;
-    train=pnproj;
+    reconst = p_reconstructed;
+    train = pnproj;
 end 
 
-function print_digit(digits,num)
+function print_digit(digits, num)
     digit = zeros(28, 28); % Initialize the digit matrix
     n = 1;
     % Extracting two different elements from each column

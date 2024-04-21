@@ -11,16 +11,17 @@ X_test = Trainnumbers.image(:,8001:10000);
 y_test = Trainnumbers.label(:,8001:10000);
 
 %%% Normalizacion %%%
-[D,N]=size(X_train); 
+[D,N] = size(X_train); 
 clear meanp stdp
-meanp=mean(X_train')';
-stdp=std(X_train')';
+meanp = mean(X_train')';
+stdp = std(X_train')';
 
-for i=1:D
-    if stdp(i) == 0 
-            stdp(i)=0.0001;
+for i = 1:D
+    if (stdp(i) == 0) 
+        stdp(i) = 0.0001;
     end
 end
+
 %%% Datos Train normalizados:
 for i=1:N
     value=(X_train(:,i)-meanp)./stdp;
