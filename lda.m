@@ -1,45 +1,53 @@
 %% LDA for MNIST
 
+clear all
+close all
+clc
 
 %%% Loading data %%%
 load Trainnumbers.mat;
 
-% Separate training set from test set
+%% No Neural Network classification %%
 
+% Separate training set from test set
 X_train = Trainnumbers.image(:,1:8000);
 y_train = Trainnumbers.label(:,1:8000);
 X_test = Trainnumbers.image(:,8001:10000);
 y_test = Trainnumbers.label(:,8001:10000);
 
-%%% Normalizacion %%%
-[D,N]=size(X_train); 
+%%% Normalization %%%
+[D, N] = size(X_train); 
 clear meanp stdp
-meanp=mean(X_train')';
-stdp=std(X_train')';
+meanp = mean(X_train')';
+stdp = std(X_train')';
 
-for i=1:D
+for i = 1:D
     if stdp(i) == 0 
-            stdp(i)=0.0001;
+        stdp(i) = 0.0001;
     end
 end
-%%% Datos Train normalizados:
-for i=1:N
-    value=(X_train(:,i)-meanp)./stdp;
-    X_train_normalized(:,i)=value;
-end
-[D,N]=size(X_test); 
 
-%%% Datos Test normalizados:
-for i=1:N
-    value=(X_test(:,i)-meanp)./stdp;
-    X_test_normalized(:,i)=value;
+%%% Training Data Normalized:
+for i = 1:N
+    value = (X_train(:, i) - meanp) ./stdp;
+    X_train_normalized(:, i) = value;
+end
+
+[D, N]=size(X_test); 
+
+%%% Test Data Normalized:
+for i = 1:N
+    value = (X_test(:, i) - meanp) ./ stdp;
+    X_test_normalized(:,i) = value;
 end
 
 % print_digit(Trainnumbers.image,10);
-n_dim=100;
+n_dim = 9;
+
+%% Only LDA
 
 
-% Retrieve data
+% Variables initialization
 dimension = size(X_train_normalized,1);
 Sw = zeros(dimension);
 Sb = zeros(dimension);   % Could consider sparse here
@@ -75,10 +83,9 @@ M = pinv(Sw) * Sb;  % Sw maybe singular, use pseudo-inverse
 G2 = U(:, 1:n_dim);
 
 % LDA Step 7 Reconstruct the train data matrix
-Y2 = G2' * X_train_normalized;
+Y2 = G2' * X_test_normalized;
 
 recons = G2 * Y2;
-
 
 print_digit(recons,10);
 

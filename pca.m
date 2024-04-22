@@ -9,7 +9,7 @@
 %   - Josep Maria Barbera Civera (17048)
 % First version: 29/04/2024
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
+
 clear all
 close all
 clc
@@ -19,8 +19,7 @@ load Trainnumbers.mat;
 
 %% No Neural Network classification %%
 
-% Separate training set from test set
-
+%%% Separate training set from test set
 X_train = Trainnumbers.image(:,1:8000);
 y_train = Trainnumbers.label(:,1:8000);
 X_test = Trainnumbers.image(:,8001:10000);
@@ -72,6 +71,10 @@ cm = confusionchart(y_test, knnclass', ...
     'Title','Matriz de confusión', ...
     'RowSummary','row-normalized', ...
     'ColumnSummary','column-normalized');
+
+
+%%%% LDA %%%%
+
 
 
 %% Neural Network classification
