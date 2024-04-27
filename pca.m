@@ -43,7 +43,7 @@ for i = 1:N
     X_train_normalized(:, i) = value;
 end
 
-[D,N]=size(X_test); 
+[D, N] = size(X_test); 
 
 %%% Test Data Normalized:
 for i = 1:N
@@ -54,7 +54,7 @@ end
 %% PCA Reduction
 print_digit(Trainnumbers.image, 10);
 n_dim = 50;
-[train, reconst1,W] = processing_data(X_train_normalized, n_dim, meanp, stdp);
+[train, reconst1, W] = processing_data(X_train_normalized, n_dim, meanp, stdp);
 [test, reconst2] = processing_data_post(X_test_normalized, meanp, stdp, W);
 
 figure();
