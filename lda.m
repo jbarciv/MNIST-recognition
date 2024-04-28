@@ -30,8 +30,8 @@ end
 % print_digit(X_train_normalized,10);
 
 %% Choose between normalized data and raw data
-train_data = X_train;
-test_data = X_test;
+train_data = X_train_normalized;
+test_data = X_test_normalized;
 
 %% LDA for 2 and 3 dimensions - plotting
 LDA_ = false;
@@ -132,7 +132,7 @@ end
 % grid on;
 
 %% LDA and kNN with PCA
-run_ = true;
+run_ = false;
 if run_
     fprintf('PCA{748-0} -> LDA{x-9} -> kNN classification\n');
     success = [];
@@ -143,7 +143,7 @@ if run_
         test_data = W_pca*test_data;
         [D_train, N_train] = size(train_data);
         %%% Compute LDA
-        LDA_ = false;
+        LDA_ = true;
         if LDA_
             n_dim = 9;
             fprintf('--> computing LDA to dim = %d\n', n_dim);
@@ -186,50 +186,12 @@ if run_
             success = [success, (2000 - no_errors_nn) / 2000];
         end
         %%% Classify test data using Naive Bayes
-        [bayMdl_Prior, errors_bay_Prior] = bayesian_classifier_training(Y, y_train);
-        disp(['Misclassification error  in Trinning: ', num2str(errors_bay_Prior/8000)]);
-        disp(['Acierto: ', num2str(1 - errors_bay_Prior / 8000)]);
-        [bayclass, errors_bay] = bayesian_classifier_testing(Y_t,y_test,bayMdl_Prior);
-        disp(['Misclassification error in Testing: ', num2str(errors_bay/2000)]);
-        disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
-        success = [success, 1-errors_bay/2000];
+        bayMdl_Prior = bayesian_classifier_training(Y, y_train);
+        [bayclass, errors_bay] = bayesian_classifier_testing(Y_t, y_test, bayMdl_Prior);
+        disp(['Acierto: ', num2str((2000 - errors_bay) / 2000)]);
+        success = [success, (2000 - errors_bay) / 2000];
+        % fprintf("%d",i);
     end 
-
-    % save("success_pca_lda_knn.mat", "success");
-
-    % for p = 1:9
-    %     Sw = zeros(D_train);
-    %     Sb = zeros(D_train);
-    %     mu = meanp;
-    %     %%% Compute Sw and Sb matrices
-    %     for i = 0:9
-    %         mask = (y_train ==  i);
-    %         x = train_data(:, mask);
-    %         ni = size(x, 2);
-    %         pi = ni / N_train;
-    %         mu_i = mean(x, 2);
-    %         Si = (1/ni) * (x - repmat(mu_i, [1,ni]))*(x - repmat(mu_i, [1,ni]))';
-    %         Sw = Sw + Si * pi;
-    %         Sb = Sb + pi * (mu_i - mu) * (mu_i - mu)';
-    %     end
-    %     %%% Compute Singular Value Decomposition (SVD) of Sw\Sb
-    %     M = pinv(Sw) * Sb;
-    %     [U, D, V] = svd(M);
-    %     W = U(:, 1:p);
-    %     Y = W' * train_data;
-    %     Y_t = W' * test_data;
-    %     %%% Classify test data using Nearest Neighbor
-    %     knnMdl = fitcknn(Y', y_train', 'NumNeighbors', 5);
-    %     knnclass = predict(knnMdl, Y_t');
-    %     no_errors_nn = length(find(knnclass' ~= y_test));
-    % 
-    %     disp(['Misclassification error: ', num2str(no_errors_nn)]);
-    %     disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
-    %     cm = confusionchart(y_test, knnclass', ...
-    %         'Title','Matriz de confusión', ...
-    %         'RowSummary','row-normalized', ...
-    %         'ColumnSummary','column-normalized');
-    % end
 end
 
 plot_ = false;
@@ -268,10 +230,83 @@ if plot_
     hold off;
 end
 
+plot_ = false;
+if plot_ 
+    % Load the data
+    y_pca_bayes_raw = load("pca_bayes_raw.mat");
+    y_pca_bayes_normalized = load("pca_bayes_normalized.mat");
+    y_pca_bayes_normalized_without_std = load("pca_bayes_normalized_without_std.mat");
+    % y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
+    x = 784:-2:10;
+
+    % Create a new figure
+    figure;
+    % Plot the first array with a solid blue line
+    plot(x, y_pca_bayes_raw.success, 'b', 'LineWidth', 2);
+    hold on; % Keep the current plot and add to it
+
+    % Plot the second array with a dashed red line
+    plot(x, y_pca_bayes_normalized.success, 'r--', 'LineWidth', 2);
+
+    % Plot the third array with a dotted green line
+    plot(x, y_pca_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
+
+    % Plot the fourth array with a dash-dot black line
+    % plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
+
+    % Add labels and title
+    xlabel('Dimension Reduction');
+    ylabel('Success');
+    title('Bayesian Classifier Success vs Dimension Reduction for Normalized and Raw Data');
+
+    % Add legend
+    legend('PCA+Bayes Raw', 'PCA+Bayes Normalized', 'PCA+Bayes Normalized no std division', 'Location',  'north');
+
+    % Hold off to reset the hold state
+    hold off;
+end
+
+plot_ = false;
+if plot_ 
+    % Load the data
+    y_pca_lda_bayes_raw = load("pca_lda_bayes_raw.mat");
+    y_pca_lda_bayes_normalized = load("pca_lda_bayes_normalized.mat");
+    y_pca_lda_bayes_normalized_without_std = load("pca_lda_bayes_normalized_without_std.mat");
+    % y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
+    x = 784:-2:10;
+
+    % Create a new figure
+    figure;
+    % Plot the first array with a solid blue line
+    plot(x, y_pca_lda_bayes_raw.success, 'b', 'LineWidth', 2);
+    hold on; % Keep the current plot and add to it
+
+    % Plot the second array with a dashed red line
+    plot(x, y_pca_lda_bayes_normalized.success, 'r--', 'LineWidth', 2);
+
+    % Plot the third array with a dotted green line
+    plot(x, y_pca_lda_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
+
+    % Plot the fourth array with a dash-dot black line
+    % plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
+
+    % Add labels and title
+    xlabel('Dimension Reduction');
+    ylabel('Success');
+    title('Bayesian Classifier Success vs Dimension Reduction for Normalized and Raw Data');
+
+    % Add legend
+    legend('PCA+LDA+Bayes Raw', 'PCA+LDA+Bayes Normalized', 'PCA+LDA+Bayes Normalized no std division', 'Location',  'northeast');
+
+    % Hold off to reset the hold state
+    hold off;
+end
+
 %% LDA with Bayes
 run_ = false;
-success = [];
+
 if run_
+    success = [];
     fprintf("-> LDA and Bayes classification\n");
     for p = 1:9
         W = U(:, 1:p);
@@ -288,7 +323,7 @@ if run_
     end
 end
 
-plot_ = false;
+plot_ = true;
 if plot_
     y_lda_bayes_raw = load("lda_bayes_raw.mat");
     y_lda_bayes_raw = y_lda_bayes_raw.success;
@@ -431,7 +466,7 @@ function plot2D3Ddata(y_train, Y, dim)
 end
 
 %% Bayesian Classifier
-function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train, y_train)
+function bayMdl_Prior = bayesian_classifier_training(X_train, y_train)
     % warning('off')
     
     % Digit Probability
@@ -452,8 +487,8 @@ function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train,
     % Distribution "normal" - (Gaussian Distribution)
     % With Prior Probability
     bayMdl_Prior     = fitcnb(X_train',y_train','Prior',prior,'DistributionNames','normal');
-    bayclass_Prior   = predict(bayMdl_Prior,X_train');
-    errors_bay_Prior = length(find(bayclass_Prior'~=y_train));
+    % bayclass_Prior   = predict(bayMdl_Prior,X_train');
+    % errors_bay_Prior = length(find(bayclass_Prior'~=y_train));
     
     % Confusion Chart
     % figure();
