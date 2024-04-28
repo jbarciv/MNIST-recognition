@@ -21,7 +21,7 @@ y_test = Trainnumbers.label(:,8001:10000);
 %% Normalize Test Data 
 [D_test, N_test] = size(X_test); 
 for i = 1:N_test
-    value = (X_test(:, i) - meanp) ./ stdp;
+    value = (X_test(:, i) - meanp)./ stdp;
     X_test_normalized(:,i) = value;
 end
 
@@ -30,8 +30,8 @@ end
 % print_digit(X_train_normalized,10);
 
 %% Choose between normalized data and raw data
-train_data = X_train_normalized;
-test_data = X_test_normalized;
+train_data = X_train;
+test_data = X_test;
 
 %% LDA for 2 and 3 dimensions - plotting
 LDA_ = false;
@@ -132,7 +132,7 @@ end
 % grid on;
 
 %% LDA and kNN with PCA
-run_ = false;
+run_ = true;
 if run_
     fprintf('PCA{748-0} -> LDA{x-9} -> kNN classification\n');
     success = [];
@@ -143,8 +143,8 @@ if run_
         test_data = W_pca*test_data;
         [D_train, N_train] = size(train_data);
         %%% Compute LDA
-        PCA_ = false;
-        if PCA_
+        LDA_ = false;
+        if LDA_
             n_dim = 9;
             fprintf('--> computing LDA to dim = %d\n', n_dim);
             Sw = zeros(D_train);
@@ -171,17 +171,28 @@ if run_
             Y = train_data;
             Y_t = test_data;
         end
-        %%% Classify test data using Nearest Neighbor
-        knnMdl = fitcknn(Y', y_train', 'NumNeighbors', 5);
-        knnclass = predict(knnMdl, Y_t');
-        no_errors_nn = length(find(knnclass' ~= y_test));
-        disp(['Misclassification error: ', num2str(no_errors_nn)]);
-        disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
-        cm = confusionchart(y_test, knnclass', ...
-            'Title','Matriz de confusión', ...
-            'RowSummary','row-normalized', ...
-            'ColumnSummary','column-normalized');
-        success = [success, (2000 - no_errors_nn) / 2000];
+        kNN_ = false;
+        if kNN_
+            %%% Classify test data using Nearest Neighbor
+            knnMdl = fitcknn(Y', y_train', 'NumNeighbors', 5);
+            knnclass = predict(knnMdl, Y_t');
+            no_errors_nn = length(find(knnclass' ~= y_test));
+            disp(['Misclassification error: ', num2str(no_errors_nn)]);
+            disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
+            cm = confusionchart(y_test, knnclass', ...
+                'Title','Matriz de confusión', ...
+                'RowSummary','row-normalized', ...
+                'ColumnSummary','column-normalized');
+            success = [success, (2000 - no_errors_nn) / 2000];
+        end
+        %%% Classify test data using Naive Bayes
+        [bayMdl_Prior, errors_bay_Prior] = bayesian_classifier_training(Y, y_train);
+        disp(['Misclassification error  in Trinning: ', num2str(errors_bay_Prior/8000)]);
+        disp(['Acierto: ', num2str(1 - errors_bay_Prior / 8000)]);
+        [bayclass, errors_bay] = bayesian_classifier_testing(Y_t,y_test,bayMdl_Prior);
+        disp(['Misclassification error in Testing: ', num2str(errors_bay/2000)]);
+        disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
+        success = [success, 1-errors_bay/2000];
     end 
 
     % save("success_pca_lda_knn.mat", "success");
@@ -221,38 +232,97 @@ if run_
     % end
 end
 
-% Load the data
-% y_pca_knn_raw = load("pca_knn.mat");
-% y_pca_knn_normalized = load("pca_knn_normalized.mat");
-% y_pca_lda_knn_raw = load("pca_lda_knn.mat");
-% y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
-% x = 784:-2:10;
-% 
-% % Create a new figure
-% figure;
-% % Plot the first array with a solid blue line
-% % plot(x, y_pca_knn_raw.success, 'b', 'LineWidth', 2);
-% hold on; % Keep the current plot and add to it
-% 
-% % Plot the second array with a dashed red line
-% % plot(x, y_pca_knn_normalized.success, 'r--', 'LineWidth', 2);
-% 
-% % Plot the third array with a dotted green line
-% plot(x, y_pca_lda_knn_raw.success, 'g:', 'LineWidth', 2);
-% 
-% % Plot the fourth array with a dash-dot black line
-% plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
-% 
-% % Add labels and title
-% xlabel('Dimension Reduction');
-% ylabel('Success');
-% title('Success vs Dimension Reduction for Normalized and Raw Data');
-% 
-% % Add legend
-% legend('PCA+KNN Raw', 'PCA+kNN Normalized', 'PCA+LDA+kNN Raw', 'PCA+LDA+KNN Normalized', 'Location',  'north');
-% 
-% % Hold off to reset the hold state
-% hold off;
+plot_ = false;
+if plot_ 
+    % Load the data
+    y_pca_knn_raw = load("pca_knn.mat");
+    y_pca_knn_normalized = load("pca_knn_normalized.mat");
+    y_pca_lda_knn_raw = load("pca_lda_knn.mat");
+    y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
+    x = 784:-2:10;
+
+    % Create a new figure
+    figure;
+    % Plot the first array with a solid blue line
+    % plot(x, y_pca_knn_raw.success, 'b', 'LineWidth', 2);
+    hold on; % Keep the current plot and add to it
+
+    % Plot the second array with a dashed red line
+    % plot(x, y_pca_knn_normalized.success, 'r--', 'LineWidth', 2);
+
+    % Plot the third array with a dotted green line
+    plot(x, y_pca_lda_knn_raw.success, 'g:', 'LineWidth', 2);
+
+    % Plot the fourth array with a dash-dot black line
+    plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
+
+    % Add labels and title
+    xlabel('Dimension Reduction');
+    ylabel('Success');
+    title('Success vs Dimension Reduction for Normalized and Raw Data');
+
+    % Add legend
+    legend('PCA+KNN Raw', 'PCA+kNN Normalized', 'PCA+LDA+kNN Raw', 'PCA+LDA+KNN Normalized', 'Location',  'north');
+
+    % Hold off to reset the hold state
+    hold off;
+end
+
+%% LDA with Bayes
+run_ = false;
+success = [];
+if run_
+    fprintf("-> LDA and Bayes classification\n");
+    for p = 1:9
+        W = U(:, 1:p);
+        Y = W' * train_data;
+        Y_t = W' * test_data;
+        %%% Classify test data using Naive Bayes
+        [bayMdl_Prior, errors_bay_Prior] = bayesian_classifier_training(Y, y_train);
+        disp(['Misclassification error  in Trinning: ', num2str(errors_bay_Prior/8000)]);
+        disp(['Acierto: ', num2str(1 - errors_bay_Prior / 8000)]);
+        [bayclass, errors_bay] = bayesian_classifier_testing(Y_t,y_test,bayMdl_Prior);
+        disp(['Misclassification error in Testing: ', num2str(errors_bay/2000)]);
+        disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
+        success = [success, 1-errors_bay/2000];
+    end
+end
+
+plot_ = false;
+if plot_
+    y_lda_bayes_raw = load("lda_bayes_raw.mat");
+    y_lda_bayes_raw = y_lda_bayes_raw.success;
+    y_lda_bayes_normalized = load("lda_bayes_normalized.mat");
+    y_lda_bayes_normalized = y_lda_bayes_normalized.success;
+    y_lda_bayes_normalized_std = load("lda_bayes_normalized_std.mat");
+    y_lda_bayes_normalized_std = y_lda_bayes_normalized_std.success;
+    
+    % Define bar width and displacement
+    bar_width = 0.4; % Adjust as needed
+    displacement = 0.1; % Adjust as needed
+    
+    % Define x-axis values for each group of bars
+    x_raw = 1:numel(y_lda_bayes_raw);
+    x_normalized = 1:numel(y_lda_bayes_normalized);
+    x_normalized_std = 1:numel(y_lda_bayes_normalized_std);
+    
+    % Plotting both data in the same figure
+    hold on;
+    bar(x_raw - displacement, y_lda_bayes_raw, bar_width, 'DisplayName', 'Raw Data');
+    bar(x_normalized + displacement, y_lda_bayes_normalized, bar_width, 'DisplayName', 'Normalized Data no std division');
+    bar(x_normalized_std + 2*displacement, y_lda_bayes_normalized_std, bar_width, 'DisplayName', 'Normalized Data');
+    hold off;
+    
+    xlabel('LDA Dimension Reduction (from the initial 784 dimensions)');
+    ylabel('Success');
+    title('Bayes Classification Succes Rate vs Dimension Reduction for Normalized (with and without std division) and Raw Data');
+    legend('Location', 'northwest');
+    xticks(1:numel(y_lda_bayes_raw));
+    xticklabels({'1', '2', '3', '4', '5', '6', '7', '8', '9'});
+    
+    % Adjusting figure
+    grid on;
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Functions
@@ -278,7 +348,7 @@ function [normalized, meanp, stdp] = normalize(data)
         end
     end
     for i = 1:N
-        value = (data(:, i) - meanp) ./stdp;
+        value = (data(:, i) - meanp)./stdp;
         normalized(:, i) = value;
     end
 end
@@ -362,7 +432,7 @@ end
 
 %% Bayesian Classifier
 function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train, y_train)
-    warning('off')
+    % warning('off')
     
     % Digit Probability
     digits = unique(y_train);
@@ -373,16 +443,6 @@ function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train,
         prob_digits(i)  = length(find(y_train == digits(i)))/length(y_train);
     end
     prior = prob_digits;
-    
-    % % Digit Mean
-    % if length(X_train(:,1)) == 784
-    %     digit_mean_image = zeros(length(X_train(:,1)),length(digits));
-    %     for ii = 1:length(digits)
-    %         digit_mean_image(:,ii) = round(mean(X_train(:,find(y_train==digits(ii))),2));
-    %         figure();
-    %         image(reshape(digit_mean_image(:,ii),28,28)');
-    %     end
-    % end
     
     % Include elements different from 0
     [r_train,c_train] = size(X_train);
@@ -396,22 +456,21 @@ function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train,
     errors_bay_Prior = length(find(bayclass_Prior'~=y_train));
     
     % Confusion Chart
-    figure();
-    cm = confusionchart(y_train',bayclass_Prior);
-    cm.NormalizedValues;
-    cm.RowSummary = 'row-normalized';
-    cm.ColumnSummary = 'column-normalized';
-    title('Bayesian Training - Confusion Matrix')
+    % figure();
+    % cm = confusionchart(y_train',bayclass_Prior);
+    % cm.NormalizedValues;
+    % cm.RowSummary = 'row-normalized';
+    % cm.ColumnSummary = 'column-normalized';
+    % title('Bayesian Training - Confusion Matrix')
 end
 
-function [bayclass,errors_bay] = bayesian_classifier_testing(X_test,y_test,bayMdl)
-    bayclass = predict(bayMdl,X_test');
-    errors_bay = length(find(bayclass'~=y_test));
-
-    figure();
-    cm = confusionchart(y_test',bayclass);
-    cm.NormalizedValues;
-    cm.RowSummary = 'row-normalized';
-    cm.ColumnSummary = 'column-normalized';
-    title('Bayesian Testing - Confusion Matrix')
+function [bayclass, errors_bay] = bayesian_classifier_testing(X_test, y_test, bayMdl)
+    bayclass = predict(bayMdl, X_test');
+    errors_bay = length(find(bayclass' ~= y_test));
+    % figure();
+    % cm = confusionchart(y_test',bayclass);
+    % cm.NormalizedValues;
+    % cm.RowSummary = 'row-normalized';
+    % cm.ColumnSummary = 'column-normalized';
+    % title('Bayesian Testing - Confusion Matrix')
 end
