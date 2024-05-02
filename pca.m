@@ -146,7 +146,10 @@ no_errors_nn=length(find(knnclass'~=y_test));
 acierto=((2000-no_errors_nn)/2000);
 disp(['Misclassification error: ', num2str(no_errors_nn)]);
 disp(['Acierto: ', num2str(acierto)]);
-cm = confusionchart(y_test,knnclass', ...
+cm = confusionchart(y_test,knnclass');
+
+%% Bayesian Classifier
+
 [D, N] = size(X_test); 
 
 %%% Test Data Normalized:
@@ -163,8 +166,7 @@ n_dim = 50;
 
 figure();
 print_digit(reconst1, 10)
-
-%% Bayesian Classifier 
+ 
 % Normalization but without applying standard deviation
 [bayModel,bayTrainError] = bayesian_classifier_training(train,y_train);
 bayTrainErrorPerc = 100 - 100*bayTrainError/length(train(1,:));
@@ -217,158 +219,6 @@ for i=0:9
 end
 
 
-%% LDA Reduction
 
 
-
-%% Neural Network classification
-
-%% Neural Network classification %%
-% to do
-
-%% Functions
-function [train,reconst,W,ExpectedError,actual_MSE]=processing_data(X_train,n_dim,meanp,stdp)
-
-    data = X_train;   
-
-    % Compute PCA transformation matrix using normalized training data
-    [Wc,Diag] = eig(cov(data'));
-    [D,N] = size(data); 
-    total = sum(sum(Diag));
-    eval = max(Diag);
-
-    for i=1:n_dim
-        W(i,:)=Wc(:,D+1-i)'; 
-    end
-    pnproj=W*data;
-    ExpectedError=0;
-    Diag(D,D);
-    for j=0:n_dim
-        ExpectedError=ExpectedError+Diag(D-j,D-j);
-    end
-    ExpectedError=ExpectedError/total;
-    pnproj = W*data;
-    reconstructed=W'*pnproj;
-    reconst = reconstructed;
-    train=pnproj;
-    % acotar_matriz(reconst,0,255);
-    squared_diff = (reconst - X_train).^2;
-    sum_squared_diff=sum(squared_diff, 'all');
-    actual_MSE = sum_squared_diff / N;
-    disp(['Actual MSE of normalized data: ' num2str(mean(actual_MSE))]);
-
-end
-
-function [train,reconst,W,ExpectedError,actual_MSE]=processing_data_norm(X_train,n_dim,meanp,stdp,original_data)
-
-    data = X_train;   
-
-    % Compute PCA transformation matrix using normalized training data
-    [Wc,Diag] = eig(cov(data'));
-    [D,N] = size(data); 
-    total = sum(sum(Diag));
-    eval = max(Diag);
-    
-    for i=1:n_dim
-        W(i,:)=Wc(:,D+1-i)'; 
-    end
-    pnproj=W*data;
-    ExpectedError=0;
-    Diag(D,D);
-    for j=0:n_dim
-        ExpectedError=ExpectedError+Diag(D-j,D-j);
-    end
-    ExpectedError=ExpectedError/total;
-
-    pnproj = W*data;
-    reconstructed=W'*pnproj;
-    reconst = reconstructed;
-    for i=1:N       
-        p_reconstructed(:,i)=reconstructed(:,i).*stdp+meanp;
-    end
-    reconst=p_reconstructed;
-    train=pnproj;
-    % reconst=acotar_matriz(reconst,0,255);
-    squared_diff = (reconst - original_data).^2;
-    sum_squared_diff=sum(squared_diff, 'all');
-    actual_MSE = sum_squared_diff / N;
-    disp(['Actual MSE of normalized data: ' num2str(mean(actual_MSE))]);
-
-end
-
-function [train,reconst]=processing_data_post(X_train,meanp,stdp,W)
-    data = X_train;  
-    [D, N] = size(data);   
-    pnproj = W*data;
-    reconstructed=W'*pnproj;
-    reconst=reconstructed;
-    for i=1:N       
-        p_reconstructed(:,i)=reconstructed(:,i).*stdp+meanp;
-    end
-    reconst = p_reconstructed;
-    train = pnproj;
-end 
-
-function matriz_acotada = acotar_matriz(matriz, limite_inferior, limite_superior)
-    % Acotar los valores de la matriz
-    matriz_acotada = matriz;
-    matriz_acotada(matriz_acotada < limite_inferior) = limite_inferior;
-    matriz_acotada(matriz_acotada > limite_superior) = limite_superior;
-end
-
-%% Bayesian Classifier
-function [bayMdl_Prior,errors_bay_Prior] = bayesian_classifier_training(X_train, y_train)
-    warning('off')
-    
-    % Digit Probability
-    digits = unique(y_train);
-    count_digits = zeros(1,length(digits));
-    prob_digits  = zeros(1,length(digits));
-    for i = 1:length(digits)
-        count_digits(i) = length(find(y_train == digits(i)));
-        prob_digits(i)  = length(find(y_train == digits(i)))/length(y_train);
-    end
-    prior = prob_digits;
-    
-    % % Digit Mean
-    % if length(X_train(:,1)) == 784
-    %     digit_mean_image = zeros(length(X_train(:,1)),length(digits));
-    %     for ii = 1:length(digits)
-    %         digit_mean_image(:,ii) = round(mean(X_train(:,find(y_train==digits(ii))),2));
-    %         figure();
-    %         image(reshape(digit_mean_image(:,ii),28,28)');
-    %     end
-    % end
-    
-    % Include elements different from 0
-    [r_train,c_train] = size(X_train);
-    standard_deviation = 0.0001;
-    X_train = X_train + standard_deviation.*randn(r_train,c_train);
-    
-    % Distribution "normal" - (Gaussian Distribution)
-    % With Prior Probability
-    bayMdl_Prior     = fitcnb(X_train',y_train','Prior',prior,'DistributionNames','normal');
-    bayclass_Prior   = predict(bayMdl_Prior,X_train');
-    errors_bay_Prior = length(find(bayclass_Prior'~=y_train));
-    
-    % Confusion Chart
-    figure();
-    cm = confusionchart(y_train',bayclass_Prior);
-    cm.NormalizedValues;
-    cm.RowSummary = 'row-normalized';
-    cm.ColumnSummary = 'column-normalized';
-    title('Bayesian Training - Confusion Matrix')
-end
-
-function [bayclass,errors_bay] = bayesian_classifier_testing(X_test,y_test,bayMdl)
-    bayclass = predict(bayMdl,X_test');
-    errors_bay = length(find(bayclass'~=y_test));
-
-    figure();
-    cm = confusionchart(y_test',bayclass);
-    cm.NormalizedValues;
-    cm.RowSummary = 'row-normalized';
-    cm.ColumnSummary = 'column-normalized';
-    title('Bayesian Testing - Confusion Matrix')
-end
 
