@@ -70,9 +70,7 @@ n_dim=9;
 [LDA_data]=LDA(X_train_normalized,n_dim,meanp,stdp,y_train);
 
 
-
 %%
-
 n = 10;
 T = zeros(1,n);
 T_pca = zeros(1,n);
@@ -107,8 +105,6 @@ end
 time = mean(T)
 time_lda = mean(T_lda)
 time_pca = mean(T_pca)
-
-
 
 
 %% Muestra el centroide de n clusters que es el numero más representativo del cluster
