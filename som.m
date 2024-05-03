@@ -14,7 +14,7 @@ y_test = Trainnumbers.label(:,8001:10000);
 %%
 num_size = 15;
 somnet = selforgmap([num_size num_size]);
-somnet.trainParam.epochs = 300;
+somnet.trainParam.epochs = 150;
 somnet=train(somnet, X_train);
 
 %% Labeling neurons 
@@ -44,13 +44,18 @@ disp(['Accuracy: ', num2str(accuracy)]);
 figure;
 image_total = [];
 fila = [];
+digit_image = [];
 j = 1;
 for i = 1:num_size*num_size
     idx = find(yntrain_ind == i);
     images = X_train(:,idx);
-    % mean_image = images(:,1);
-    mean_image = mean(images');
-    digit_image = reshape(mean_image, 28, 28); % Si cada imagen es de 28x28
+    [A,B]= size(images);
+    if B >1
+        mean_image = mean(images');
+    else
+        mean_image = images;
+    end
+    digit_image = reshape(mean_image', 28, 28); % Si cada imagen es de 28x28
     fila = [fila digit_image'];
     j = j+1;
     if j == num_size+1
