@@ -81,12 +81,6 @@ cm = confusionchart(y_test, knnclass', ...
     'RowSummary','row-normalized', ...
     'ColumnSummary','column-normalized');
 
-%% LDA Reduction
-
-
-
-%% Neural Network classification %%
-% to do
 
 %% Functions
 function [train, reconst, W] = processing_data(X_train, n_dim, meanp, stdp)

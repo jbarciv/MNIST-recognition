@@ -4,10 +4,10 @@
 %
 % Final project:  Visual Handwritten Digits Recognition
 % Students:
-%   - Alberto Ibernon Jimenez (23079)
+%
 %   - David Redondo Quintero (23147)
-%   - Josep Maria Barbera Civera (17048)
-% First version: 29/04/2024
+%
+% First version: 02/05/2024
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
