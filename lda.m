@@ -192,7 +192,7 @@ if run_
             %     'ColumnSummary','column-normalized');
             success = [success, (2000 - no_errors_nn) / 2000];
         end
-        bayes_ = true;
+        bayes_ =  false;
         if bayes_
             %%% Classify test data using Naive Bayes
             bayMdl_Prior = bayesian_classifier_training(Y, y_train);
@@ -205,15 +205,7 @@ if run_
     end 
 end
 
-
-
-% kNN -> negras 
-% bayes -> verdes
-% raw -> continua
-% normalized -> discontinua
-
-
-plot_ = true;
+plot_ = false;
 if plot_ 
     % Load the data
     y_pca_knn_raw = load("pca_knn.mat");
