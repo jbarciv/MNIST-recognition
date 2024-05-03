@@ -83,7 +83,8 @@ end
 run_ = false;
 if run_
     fprintf("-> LDA and kNN classification\n");
-    for p = 1:9
+    tic
+    for p = 9 %1:9
         W = U(:, 1:p);
         Y = W' * train_data;
         Y_t = W' * test_data;
@@ -92,53 +93,59 @@ if run_
         knnclass = predict(knnMdl, Y_t');
         no_errors_nn = length(find(knnclass' ~= y_test));
     
-        disp(['Misclassification error: ', num2str(no_errors_nn)]);
-        disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
-        cm = confusionchart(y_test, knnclass', ...
-            'Title','Matriz de confusión', ...
-            'RowSummary','row-normalized', ...
-            'ColumnSummary','column-normalized');
+        % disp(['Misclassification error: ', num2str(no_errors_nn)]);
+        % disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
+        % cm = confusionchart(y_test, knnclass', ...
+        %     'Title','Matriz de confusión', ...
+        %     'RowSummary','row-normalized', ...
+        %     'ColumnSummary','column-normalized');
     end
+    toc
+    disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
 end
 
-% normalized_errors = [1720, 1158, 867, 634, 469, 437, 374, 353, 308];
-% normalized_aciertos = [0.14, 0.421, 0.5665, 0.683, 0.7655, 0.7815, 0.813, 0.8235, 0.846];
-% 
-% raw_errors = [1756, 1216, 869, 622, 481, 446, 383, 348, 293];
-% raw_aciertos = [0.122, 0.392, 0.5655, 0.689, 0.7595, 0.777, 0.8085, 0.826, 0.8535];
-% 
-% % Define bar width and displacement
-% bar_width = 0.4; % Adjust as needed
-% displacement = 0.1; % Adjust as needed
-% 
-% % Define x-axis values for each group of bars
-% x_normalized = 1:numel(normalized_aciertos);
-% x_raw = 1:numel(raw_aciertos);
-% 
-% % Plotting both data in the same figure
-% hold on;
-% bar(x_normalized - displacement, normalized_aciertos, bar_width, 'DisplayName', 'Normalized Data');
-% bar(x_raw + displacement, raw_aciertos, bar_width, 'DisplayName', 'Raw Data');
-% hold off;
-% 
-% xlabel('Dimension Reduction');
-% ylabel('Success');
-% title('Succes vs Dimension Reduction for Normalized and Raw Data');
-% legend('Location', 'northwest');
-% xticks(1:numel(normalized_aciertos));
-% xticklabels({'1', '2', '3', '4', '5', '6', '7', '8', '9'});
-% 
-% % Adjusting figure
-% grid on;
+plot_ = false;
+if plot_
+    normalized_errors = [1720, 1158, 867, 634, 469, 437, 374, 353, 308];
+    normalized_aciertos = [0.14, 0.421, 0.5665, 0.683, 0.7655, 0.7815, 0.813, 0.8235, 0.846];
+
+    raw_errors = [1756, 1216, 869, 622, 481, 446, 383, 348, 293];
+    raw_aciertos = [0.122, 0.392, 0.5655, 0.689, 0.7595, 0.777, 0.8085, 0.826, 0.8535];
+
+    % Define bar width and displacement
+    bar_width = 0.4; % Adjust as needed
+    displacement = 0.1; % Adjust as needed
+
+    % Define x-axis values for each group of bars
+    x_normalized = 1:numel(normalized_aciertos);
+    x_raw = 1:numel(raw_aciertos);
+
+    % Plotting both data in the same figure
+    hold on;
+    bar(x_normalized - displacement, normalized_aciertos, bar_width, 'DisplayName', 'Normalized Data');
+    bar(x_raw + displacement, raw_aciertos, bar_width, 'DisplayName', 'Raw Data');
+    hold off;
+
+    xlabel('Dimension Reduction');
+    ylabel('Success');
+    title('Succes vs Dimension Reduction for Normalized and Raw Data');
+    legend('Location', 'northwest');
+    xticks(1:numel(normalized_aciertos));
+    xticklabels({'1', '2', '3', '4', '5', '6', '7', '8', '9'});
+
+    % Adjusting figure
+    grid on;
+end
 
 %% LDA and kNN with PCA
 run_ = false;
 if run_
-    fprintf('PCA{748-0} -> LDA{x-9} -> kNN classification\n');
+    fprintf('PCA{748-0} -> LDA{x-9}? -> kNN classification\n');
     success = [];
-    for i = 784:-2:10
+    for i = 180 %784:-2:10
+        tic
         %%% Compute PCA
-        fprintf('--> computing PCA to dim = %d\n', i);
+        % fprintf('--> computing PCA to dim = %d\n', i);
         [train_data, W_pca] = myPCA(train_data, i);
         test_data = W_pca*test_data;
         [D_train, N_train] = size(train_data);
@@ -146,7 +153,7 @@ if run_
         LDA_ = true;
         if LDA_
             n_dim = 9;
-            fprintf('--> computing LDA to dim = %d\n', n_dim);
+            % fprintf('--> computing LDA to dim = %d\n', n_dim);
             Sw = zeros(D_train);
             Sb = zeros(D_train);
             mu = mean(train_data');
@@ -177,24 +184,36 @@ if run_
             knnMdl = fitcknn(Y', y_train', 'NumNeighbors', 5);
             knnclass = predict(knnMdl, Y_t');
             no_errors_nn = length(find(knnclass' ~= y_test));
-            disp(['Misclassification error: ', num2str(no_errors_nn)]);
-            disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
-            cm = confusionchart(y_test, knnclass', ...
-                'Title','Matriz de confusión', ...
-                'RowSummary','row-normalized', ...
-                'ColumnSummary','column-normalized');
+            % disp(['Misclassification error: ', num2str(no_errors_nn)]);
+            % disp(['Acierto: ', num2str((2000 - no_errors_nn) / 2000)]);
+            % cm = confusionchart(y_test, knnclass', ...
+            %     'Title','Matriz de confusión', ...
+            %     'RowSummary','row-normalized', ...
+            %     'ColumnSummary','column-normalized');
             success = [success, (2000 - no_errors_nn) / 2000];
         end
-        %%% Classify test data using Naive Bayes
-        bayMdl_Prior = bayesian_classifier_training(Y, y_train);
-        [bayclass, errors_bay] = bayesian_classifier_testing(Y_t, y_test, bayMdl_Prior);
-        disp(['Acierto: ', num2str((2000 - errors_bay) / 2000)]);
-        success = [success, (2000 - errors_bay) / 2000];
-        % fprintf("%d",i);
+        bayes_ = true;
+        if bayes_
+            %%% Classify test data using Naive Bayes
+            bayMdl_Prior = bayesian_classifier_training(Y, y_train);
+            [bayclass, errors_bay] = bayesian_classifier_testing(Y_t, y_test, bayMdl_Prior);
+            % disp(['Acierto: ', num2str((2000 - errors_bay) / 2000)]);
+            success = [success, (2000 - errors_bay) / 2000];
+        end
+        toc
+        disp(num2str(success(1)));
     end 
 end
 
-plot_ = false;
+
+
+% kNN -> negras 
+% bayes -> verdes
+% raw -> continua
+% normalized -> discontinua
+
+
+plot_ = true;
 if plot_ 
     % Load the data
     y_pca_knn_raw = load("pca_knn.mat");
@@ -206,89 +225,82 @@ if plot_
     % Create a new figure
     figure;
     % Plot the first array with a solid blue line
-    % plot(x, y_pca_knn_raw.success, 'b', 'LineWidth', 2);
+    plot(x, y_pca_knn_raw.success, 'k', 'LineWidth', 2);
     hold on; % Keep the current plot and add to it
 
     % Plot the second array with a dashed red line
-    % plot(x, y_pca_knn_normalized.success, 'r--', 'LineWidth', 2);
+    plot(x, y_pca_knn_normalized.success, 'g--', 'LineWidth', 2);
 
     % Plot the third array with a dotted green line
-    plot(x, y_pca_lda_knn_raw.success, 'g:', 'LineWidth', 2);
+    plot(x, y_pca_lda_knn_raw.success, 'b:', 'LineWidth', 2);
 
     % Plot the fourth array with a dash-dot black line
-    plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
+    plot(x, y_pca_lda_knn_normalized.success, 'r-.', 'LineWidth', 2);
 
-    % Add labels and title
-    xlabel('Dimension Reduction');
-    ylabel('Success');
-    title('Success vs Dimension Reduction for Normalized and Raw Data');
-
-    % Add legend
-    legend('PCA+KNN Raw', 'PCA+kNN Normalized', 'PCA+LDA+kNN Raw', 'PCA+LDA+KNN Normalized', 'Location',  'north');
-
-    % Hold off to reset the hold state
-    hold off;
+    % % Add labels and title
+    % xlabel('Dimension Reduction');
+    % ylabel('Success');
+    % title('Success vs Dimension Reduction for Normalized and Raw Data');
+    % 
+    % % Add legend
+    % legend('PCA+KNN Raw', 'PCA+kNN Normalized', 'PCA+LDA+kNN Raw', 'PCA+LDA+KNN Normalized', 'Location',  'north');
+    % 
+    % % Hold off to reset the hold state
+    % hold off;
 end
 
-plot_ = false;
+plot_ = true;
 if plot_ 
     % Load the data
     y_pca_bayes_raw = load("pca_bayes_raw.mat");
     y_pca_bayes_normalized = load("pca_bayes_normalized.mat");
     y_pca_bayes_normalized_without_std = load("pca_bayes_normalized_without_std.mat");
-    % y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
     x = 784:-2:10;
 
     % Create a new figure
-    figure;
+    % figure;
     % Plot the first array with a solid blue line
-    plot(x, y_pca_bayes_raw.success, 'b', 'LineWidth', 2);
+    plot(x, y_pca_bayes_raw.success, 'r', 'LineWidth', 2);
     hold on; % Keep the current plot and add to it
 
     % Plot the second array with a dashed red line
-    plot(x, y_pca_bayes_normalized.success, 'r--', 'LineWidth', 2);
+    plot(x, y_pca_bayes_normalized.success, 'b--', 'LineWidth', 2);
 
     % Plot the third array with a dotted green line
-    plot(x, y_pca_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
+    % plot(x, y_pca_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
 
-    % Plot the fourth array with a dash-dot black line
-    % plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
-
-    % Add labels and title
-    xlabel('Dimension Reduction');
-    ylabel('Success');
-    title('Bayesian Classifier Success vs Dimension Reduction for Normalized and Raw Data');
-
-    % Add legend
-    legend('PCA+Bayes Raw', 'PCA+Bayes Normalized', 'PCA+Bayes Normalized no std division', 'Location',  'north');
-
-    % Hold off to reset the hold state
-    hold off;
+    % % Add labels and title
+    % xlabel('Dimension Reduction');
+    % ylabel('Success');
+    % title('Bayesian Classifier Success vs Dimension Reduction for Normalized and Raw Data');
+    % 
+    % % Add legend
+    % legend('PCA+Bayes Raw', 'PCA+Bayes Normalized', 'PCA+Bayes Normalized no std division', 'Location',  'north');
+    % 
+    % % Hold off to reset the hold state
+    % hold off;
 end
 
-plot_ = false;
+plot_ = true;
 if plot_ 
     % Load the data
     y_pca_lda_bayes_raw = load("pca_lda_bayes_raw.mat");
     y_pca_lda_bayes_normalized = load("pca_lda_bayes_normalized.mat");
     y_pca_lda_bayes_normalized_without_std = load("pca_lda_bayes_normalized_without_std.mat");
-    % y_pca_lda_knn_normalized = load("pca_lda_knn_normalized.mat");
     x = 784:-2:10;
 
     % Create a new figure
-    figure;
+    % figure;
     % Plot the first array with a solid blue line
-    plot(x, y_pca_lda_bayes_raw.success, 'b', 'LineWidth', 2);
+    plot(x, y_pca_lda_bayes_raw.success, 'g:', 'LineWidth', 2);
     hold on; % Keep the current plot and add to it
 
     % Plot the second array with a dashed red line
-    plot(x, y_pca_lda_bayes_normalized.success, 'r--', 'LineWidth', 2);
+    plot(x, y_pca_lda_bayes_normalized.success, 'k-.', 'LineWidth', 2);
 
     % Plot the third array with a dotted green line
-    plot(x, y_pca_lda_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
+    % plot(x, y_pca_lda_bayes_normalized_without_std.success, 'g:', 'LineWidth', 2);
 
-    % Plot the fourth array with a dash-dot black line
-    % plot(x, y_pca_lda_knn_normalized.success, 'k-.', 'LineWidth', 2);
 
     % Add labels and title
     xlabel('Dimension Reduction');
@@ -296,7 +308,9 @@ if plot_
     title('Bayesian Classifier Success vs Dimension Reduction for Normalized and Raw Data');
 
     % Add legend
-    legend('PCA+LDA+Bayes Raw', 'PCA+LDA+Bayes Normalized', 'PCA+LDA+Bayes Normalized no std division', 'Location',  'northeast');
+    legend('PCA+KNN Raw', 'PCA+kNN Normalized', 'PCA+LDA+kNN Raw', 'PCA+LDA+KNN Normalized', ...
+           'PCA+Bayes Raw', 'PCA+Bayes Normalized', ...
+           'PCA+LDA+Bayes Raw', 'PCA+LDA+Bayes Normalized', 'Location',  'best');
 
     % Hold off to reset the hold state
     hold off;
@@ -304,26 +318,28 @@ end
 
 %% LDA with Bayes
 run_ = false;
-
 if run_
+    tic
     success = [];
-    fprintf("-> LDA and Bayes classification\n");
-    for p = 1:9
+    % fprintf("-> LDA and Bayes classification\n");
+    for p = 9 % 1:9
         W = U(:, 1:p);
         Y = W' * train_data;
         Y_t = W' * test_data;
         %%% Classify test data using Naive Bayes
-        [bayMdl_Prior, errors_bay_Prior] = bayesian_classifier_training(Y, y_train);
-        disp(['Misclassification error  in Trinning: ', num2str(errors_bay_Prior/8000)]);
-        disp(['Acierto: ', num2str(1 - errors_bay_Prior / 8000)]);
+        bayMdl_Prior = bayesian_classifier_training(Y, y_train);
+        % disp(['Misclassification error  in Trinning: ', num2str(errors_bay_Prior/8000)]);
+        % disp(['Acierto: ', num2str(1 - errors_bay_Prior / 8000)]);
         [bayclass, errors_bay] = bayesian_classifier_testing(Y_t,y_test,bayMdl_Prior);
-        disp(['Misclassification error in Testing: ', num2str(errors_bay/2000)]);
-        disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
+        % disp(['Misclassification error in Testing: ', num2str(errors_bay/2000)]);
+        % disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
         success = [success, 1-errors_bay/2000];
     end
+    toc
+    disp(['Acierto: ', num2str(1 - errors_bay / 2000)]);
 end
 
-plot_ = true;
+plot_ = false;
 if plot_
     y_lda_bayes_raw = load("lda_bayes_raw.mat");
     y_lda_bayes_raw = y_lda_bayes_raw.success;
