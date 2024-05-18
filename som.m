@@ -12,22 +12,23 @@ y_train = Trainnumbers.label(:,1:8000);
 X_test = Trainnumbers.image(:,8001:10000);
 y_test = Trainnumbers.label(:,8001:10000);
 %%
-num_size = 15;
+num_size = 8;
 somnet = selforgmap([num_size num_size]);
-somnet.trainParam.epochs = 150;
+somnet.trainParam.epochs = 10;
 somnet=train(somnet, X_train);
 
 %% Labeling neurons 
+num_clases = 10;
 yntrain=somnet(X_train);
 yntrain_ind=vec2ind(yntrain);
-neuron_class = compare_lists(yntrain_ind,y_train,num_size*num_size,10);
+neuron_class = compare_lists(yntrain_ind,y_train,num_size*num_size,num_clases);
 
 
 %% Prediction
 yntest=somnet(X_test);
 yntest_ind=vec2ind(yntest);
 prediction = predict_class(neuron_class, yntest_ind);
-prediction = prediction-1;
+prediction = prediction;
 C = confusionchart(y_test,prediction);
 C.Title = 'SOM as classifier';
 C.RowSummary = 'row-normalized';
@@ -86,7 +87,7 @@ function neuron_class = compare_lists(activated_neurons, input_classes, num_neur
     % Determine the most frequent class for each neuron
     for i = 1:num_neurons
         [~, max_class] = max(class_counts(i,:));
-        neuron_class(i) = max_class;
+        neuron_class(i) = max_class-1;
     end
 end
 
