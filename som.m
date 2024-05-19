@@ -4,6 +4,7 @@ clc
 
 %%% Loading data %%%
 load Trainnumbers.mat;
+load som.mat;
 
 %%
 
@@ -40,8 +41,19 @@ accuracy = (2000-no_errors_nn)/2000;
 disp(['Accuracy: ', num2str(accuracy)]);
 
 
+%%
+
+figure
+weights = somnet.IW;
+matrix =  weights{1,1};
+image  = matrix(94,:);
+digit_image = reshape(image, 28, 28); % Si cada imagen es de 28x28
+imshow(digit_image, [0 255]);
+
 %% Show plot
 % Visualizar SOM y mostrar las imágenes de los dígitos en las neuronas correspondientes
+weights = somnet.IW;
+matrix =  weights{1,1};
 figure;
 image_total = [];
 fila = [];
@@ -49,14 +61,20 @@ digit_image = [];
 j = 1;
 for i = 1:num_size*num_size
     idx = find(yntrain_ind == i);
-    images = X_train(:,idx);
-    [A,B]= size(images);
-    if B >1
-        mean_image = mean(images');
-    else
-        mean_image = images;
-    end
-    digit_image = reshape(mean_image', 28, 28); % Si cada imagen es de 28x28
+    % images = X_train(:,idx);
+    % [A,B]= size(images);
+    % if B >1
+    %     mean_image = mean(images');
+    % else
+    %     mean_image = images;
+    % end
+
+    % Visualizamos los pesos de la red para cada input, de esta forma se
+    % puede generar el mapa.
+    % The net.IW property is a matrix where each row represents the weight
+    % values for a single center
+    mean_image  = matrix(i,:);
+    digit_image = reshape(mean_image, 28, 28); % Si cada imagen es de 28x28
     fila = [fila digit_image'];
     j = j+1;
     if j == num_size+1
