@@ -76,7 +76,7 @@ bayTestErrorPerc = 100 - 100*bayTestError/length(test(1,:));
 computation_time = toc;
 
 % Save result
-class = bayclass';
+class = int8(bayclass');
 save('Group08_bay.mat','name','PCA','class');
 
 % Print results
@@ -85,7 +85,7 @@ fprintf('Método de Clasificador Bayesiano\n')
 fprintf('********************************\n')
 fprintf('Porcentaje de Aciertos para el Training Dataset: %f %%\n', bayTrainErrorPerc)
 fprintf('Porcentaje de Aciertos para el Testing  Dataset: %f %%\n', bayTestErrorPerc)
-fprintf('Dimension reducida por PCA: %d \n',PCA)
+fprintf('Dimensión reducida por PCA: %d \n',PCA)
 fprintf('Tiempo de Computación: %f s \n',computation_time)
 
 %% Functions
