@@ -25,8 +25,8 @@ X_test = Trainnumbers.image(:,8001:10000);
 y_test = Trainnumbers.label(:,8001:10000);
 
 %%
-X_train=double(X_train/255);
-X_test=double(X_test/255);
+X_train = double(X_train/255);
+X_test = double(X_test/255);
 
 %%
 % hiddenSizes=[20,10];
@@ -67,40 +67,40 @@ X_test=double(X_test/255);
 % % Ensure y_train is a column vector
 % y_train = y_train(:);
 
-num_classes = 10;
-layers = [
-    featureInputLayer(784) % Input layer for 784 features (28*28 pixels flattened)
-    % fullyConnectedLayer(50) % First fully connected layer with 50 neuron
-    % reluLayer
-    fullyConnectedLayer(50) % First fully connected layer with 50 neurons
-    sigmoidLayer % ReLU activation layer
-    % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
-    % sigmoidLayer
-    % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
-    % sigmoidLayer % ReLU activation layer
-    % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
-    % reluLayer
-    fullyConnectedLayer(num_classes) % Fully connected layer with output neurons equal to num_classes
-    softmaxLayer % Softmax activation layer
-    classificationLayer]; % Classification layer
-
-% Training options
-options = trainingOptions("adam", ...
-    'MaxEpochs', 5, ...
-    'InitialLearnRate', 5e-3, ...
-    'Verbose', true, ...
-    'Plots', 'training-progress');
-
-% Training the network
-net = trainNetwork(X_train', categorical(y_train'), layers, options);
-%%
-
-% Classify the test data
-y_pred = classify(net, X_test');
-
-% Calculate the accuracy
-accuracy = sum(y_pred == categorical(y_test')) / numel(y_test');
-fprintf('Test accuracy: %.2f%%\n', accuracy * 100);
+% num_classes = 10;
+% layers = [
+%     featureInputLayer(784) % Input layer for 784 features (28*28 pixels flattened)
+%     % fullyConnectedLayer(50) % First fully connected layer with 50 neuron
+%     % reluLayer
+%     fullyConnectedLayer(50) % First fully connected layer with 50 neurons
+%     sigmoidLayer % ReLU activation layer
+%     % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
+%     % sigmoidLayer
+%     % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
+%     % sigmoidLayer % ReLU activation layer
+%     % fullyConnectedLayer(10) % First fully connected layer with 50 neurons
+%     % reluLayer
+%     fullyConnectedLayer(num_classes) % Fully connected layer with output neurons equal to num_classes
+%     softmaxLayer % Softmax activation layer
+%     classificationLayer]; % Classification layer
+% 
+% % Training options
+% options = trainingOptions("adam", ...
+%     'MaxEpochs', 5, ...
+%     'InitialLearnRate', 5e-3, ...
+%     'Verbose', true, ...
+%     'Plots', 'training-progress');
+% 
+% % Training the network
+% net = trainNetwork(X_train', categorical(y_train'), layers, options);
+% %%
+% 
+% % Classify the test data
+% y_pred = classify(net, X_test');
+% 
+% % Calculate the accuracy
+% accuracy = sum(y_pred == categorical(y_test')) / numel(y_test');
+% fprintf('Test accuracy: %.2f%%\n', accuracy * 100);
 
 
 
