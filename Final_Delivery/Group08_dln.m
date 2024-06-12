@@ -18,18 +18,21 @@ tic;
 
 %% Loading data %%
 load Trainnumbers.mat;
+load Test_numbers_HW1.mat;
 
 %% Inputs
 name = {'Chema','David','Alberto'};
 PCA  = 784;
 
-debugging_flag = 1; % Flag to activate plots and debugging intermediate variables
+debugging_flag = 0; % Flag to activate plots and debugging intermediate variables
 
 %% Separate training set from test set
 X_train = Trainnumbers.image(:,1:8000);
 y_train = Trainnumbers.label(:,1:8000);
-X_test  = Trainnumbers.image(:,8001:10000);
-y_test  = Trainnumbers.label(:,8001:10000);
+% X_test  = Trainnumbers.image(:,8001:10000);
+% y_test  = Trainnumbers.label(:,8001:10000);
+
+X_test   = Test_numbers.image;
 
 %% Reshaping
 X_train_reshaped = reshape(X_train,[28 28 1 length(X_train(1,:))]);
@@ -73,9 +76,11 @@ dlnTrainingErrorPerc = 100 - 100*errors_dln_training/length(y_train);
 
 %% Testing
 dln_class_testing  = classify(net,X_test_reshaped);
-dln_class_testing_double = double(dln_class_testing) - ones(length(y_test),1);
-errors_dln_testing = length(find(dln_class_testing_double'~=y_test));
-dlnTestErrorPerc = 100 - 100*errors_dln_testing/length(y_test);
+dln_class_testing_double = double(dln_class_testing) - ones(length(dln_class_testing),1);
+
+% % Performance
+% errors_dln_testing = length(find(dln_class_testing_double'~=y_test));
+% dlnTestErrorPerc = 100 - 100*errors_dln_testing/length(dln_class_testing);
 
 % Confusion Chart
 if debugging_flag == 1
@@ -96,6 +101,6 @@ fprintf('********************************\n')
 fprintf('Método de Clasificador por Deep Convolutional Neural Networking (CNN)\n')
 fprintf('********************************\n')
 fprintf('Porcentaje de Aciertos para el Training Dataset: %f %%\n', dlnTrainingErrorPerc)
-fprintf('Porcentaje de Aciertos para el Testing  Dataset: %f %%\n', dlnTestErrorPerc)
+% fprintf('Porcentaje de Aciertos para el Testing  Dataset: %f %%\n', dlnTestErrorPerc)
 fprintf('Dimensión reducida por PCA: %d \n',PCA)
 fprintf('Tiempo de Computación: %f s \n',toc)

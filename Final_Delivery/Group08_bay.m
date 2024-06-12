@@ -17,6 +17,7 @@ clc;
 
 %% Loading data %%
 load Trainnumbers.mat;
+load Test_numbers_HW1.mat;
 
 %% Inputs
 name = {'Chema','David','Alberto'};
@@ -27,8 +28,10 @@ debugging_flag = 0; % Flag to activate plots and debugging intermediate variable
 %% Separate training set from test set
 X_train = Trainnumbers.image(:,1:8000);
 y_train = Trainnumbers.label(:,1:8000);
-X_test  = Trainnumbers.image(:,8001:10000);
-y_test  = Trainnumbers.label(:,8001:10000);
+% X_test  = Trainnumbers.image(:,8001:10000);
+% y_test  = Trainnumbers.label(:,8001:10000);
+
+X_test   = Test_numbers.image;
 
 %% Normalization
 [D,N] = size(X_train); 
@@ -70,9 +73,13 @@ tic;
 [bayModel,bayTrainError] = bayesian_classifier_training(train,y_train,debugging_flag);
 bayTrainErrorPerc = 100 - 100*bayTrainError/length(train(1,:));
 
-% Testing Phase
-[bayclass,bayTestError]  = bayesian_classifier_testing(test,y_test,bayModel,debugging_flag);
-bayTestErrorPerc = 100 - 100*bayTestError/length(test(1,:));
+% % Testing Phase
+% [bayclass,bayTestError]  = bayesian_classifier_testing(test,y_test,bayModel,debugging_flag);
+% bayTestErrorPerc = 100 - 100*bayTestError/length(test(1,:));
+
+% Classification Results Phase
+bayclass = bayesian_classifier(test,bayModel);
+
 computation_time = toc;
 
 % Save result
@@ -84,7 +91,7 @@ fprintf('********************************\n')
 fprintf('Método de Clasificador Bayesiano\n')
 fprintf('********************************\n')
 fprintf('Porcentaje de Aciertos para el Training Dataset: %f %%\n', bayTrainErrorPerc)
-fprintf('Porcentaje de Aciertos para el Testing  Dataset: %f %%\n', bayTestErrorPerc)
+% fprintf('Porcentaje de Aciertos para el Testing  Dataset: %f %%\n', bayTestErrorPerc)
 fprintf('Dimensión reducida por PCA: %d \n',PCA)
 fprintf('Tiempo de Computación: %f s \n',computation_time)
 
@@ -203,4 +210,8 @@ if debugging_flag == 1
     cm.ColumnSummary = 'column-normalized';
     title('Bayesian Testing - Confusion Matrix')
 end
+end
+
+function bayclass = bayesian_classifier(X_test,bayMdl)
+    bayclass = predict(bayMdl,X_test');
 end
