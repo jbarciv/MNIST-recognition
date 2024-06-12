@@ -84,6 +84,7 @@ computation_time = toc;
 
 % Save result
 class = int8(bayclass');
+PCA   = int32(PCA);
 save('Group08_bay.mat','name','PCA','class');
 
 % Print results

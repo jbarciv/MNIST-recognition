@@ -94,6 +94,7 @@ end
 
 % Save result
 class = int8(dln_class_testing_double');
+PCA   = int32(PCA);
 save('Group08_dln.mat','name','PCA','class');
 
 % Print results
